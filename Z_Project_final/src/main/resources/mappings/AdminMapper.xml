@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="adminDAO">
+	
+	<!-- 관리자 로그인 아이디, 비밀번호 체크 -->
+	<select id="adminLogin" parameterType="admin" resultType="admin">
+		SELECT * FROM ADMIN WHERE ADMIN_ID = #{admin_id} AND ADMIN_PASSWORD = #{admin_password}
+	</select>
+	
+	<!-- ============================================================== -->
+	
+   <!-- '상품관리' >> '상품수정/삭제' selectAll -->
+   <select id="selectAllCoupon" resultType="admincoupon">
+      SELECT * FROM COUPON
+      ORDER BY COUPON_KEY DESC
+   </select>
+   
+   <!-- '상품관리' >> '상품등록'(쿠폰) -->
+   <insert id="insertCoupon" parameterType="admincoupon">
+      INSERT INTO COUPON
+            (COUPON_KEY, NAME, PRICE, FIRST_DATE, LAST_DATE,
+               UPLOAD_COUNT, ATTACH_FILE1, ATTACH_FILE2, ATTACH_FILE3,
+                   LOCAL_CATEGORY, COUPON_CATEGORY, CONTENT)
+      VALUES ((SELECT NVL(MAX(COUPON_KEY), 0)+1 FROM COUPON), #{name}, #{price}, #{first_date}, #{last_date},
+               #{upload_count}, #{attach_file1}, #{attach_file2}, #{attach_file3},
+                   #{local_category}, #{coupon_category}, #{content})
+   </insert>
+   
+   <!-- '상품관리' >> '상품수정 상세'(쿠폰) -->
+   <select id="selectOneCoupon" parameterType="int" resultType="admincoupon">
+      SELECT * FROM COUPON
+       WHERE COUPON_KEY = #{coupon_key}
+   </select>
+   
+   <!-- '상품관리' >> '상품수정/삭제' >> 상품 수정(쿠폰) -->
+   <update id="updateCoupon" parameterType="admincoupon">
+      UPDATE COUPON
+         SET NAME = #{name},
+             CONTENT = #{content},
+             PRICE = #{price},
+             FIRST_DATE = #{first_date},
+             LAST_DATE = #{last_date},
+             UPLOAD_COUNT = #{upload_count},
+             ATTACH_FILE1 = #{attach_file1},
+             ATTACH_FILE2 = #{attach_file2},
+             ATTACH_FILE3 = #{attach_file3},
+             LOCAL_CATEGORY = #{local_category},
+             COUPON_CATEGORY = #{coupon_category}
+       WHERE COUPON_KEY = #{coupon_key}
+   </update>
+   
+   <!-- '상품관리' >> '상품수정/삭제' >> 상품 삭제(쿠폰)  -->
+   <delete id="deleteCoupon" parameterType="int">
+      DELETE FROM COUPON
+       WHERE COUPON_KEY = #{coupon_key}
+   </delete>
+	
+	<!-- ============================================================== -->
+	
+	<!-- '고객센터' >> '자주하는 질문' 눌렀을 때 category 가져오기 -->
+	<select id="selectCateFAQ" resultType="String">
+		SELECT CATEGORY FROM FAQ
+		GROUP BY CATEGORY
+	</select>
+	
+	<!-- '고객센터' >> '자주하는 질문' selectAll -->
+	<select id="selectAllFAQ" parameterType="String" resultType="adminfaq">
+		SELECT * FROM FAQ
+		 WHERE CATEGORY = #{category}
+		 ORDER BY NO DESC
+	</select>
+	
+	<!-- '고객센터' >> '자주하는 질문' selectOne -->
+	<select id="selectOneFAQ" parameterType="int" resultType="adminfaq">
+		SELECT * FROM FAQ
+	     WHERE NO = #{no}
+	</select>
+	
+	<!-- '고객센터' >> '자주하는 질문' 등록 insertFAQ -->
+	<insert id="insertFAQ" parameterType="adminfaq">
+		INSERT INTO FAQ
+		VALUES ((SELECT NVL(MAX(NO), 0)+1 FROM FAQ), #{question}, #{answer}, #{category})
+	</insert>
+	
+	<!-- '고객센터' >> '자주하는 질문' 수정 updateFAQ -->
+	<update id="updateFAQ" parameterType="adminfaq">
+		UPDATE FAQ
+		   SET QUESTION = #{question},
+		       ANSWER = #{answer},
+		       CATEGORY = #{category}
+		 WHERE NO = #{no}
+	</update>
+	
+	<!-- '고객센터' >> '자주하는 질문' 삭제 deleteFAQ -->
+	<delete id="deleteFAQ" parameterType="int">
+		DELETE FROM FAQ
+		 WHERE NO = #{no}
+	</delete>
+	
+	<!-- ============================================================== -->
+	
+	<!-- '고객센터' >> '1:1문의' 눌렀을 때 status 가져오기 -->
+	<select id="selectStatusQNA" resultType="String">
+		SELECT STATUS FROM QNA
+		GROUP BY STATUS
+	</select>
+	
+	<!-- '고객센터' >> '1:1문의' >> '답변/미답변'을 눌렀을 때 내용 추출 -->
+	<select id="selectAllQNA" parameterType="String" resultType="adminqna">
+		SELECT * FROM QNA
+		 WHERE STATUS = #{status}
+		 ORDER BY NO DESC
+	</select>
+	
+	<!-- '고객센터' >> '1:1문의' >> '답변/미답변' update -->
+    <update id="qnaUpdateStatusTrue" parameterType="int">
+        UPDATE QNA 
+        SET STATUS = '답변'
+        WHERE NO = #{no}
+    </update>
+	
+	<!-- 회원관리 리스트 -->
+	<select id="getMemberList" parameterType="adminmember" resultType="adminmember">
+	    SELECT * FROM MEMBER
+        WHERE 1=1
+		<if test="searchCondition == 'ID' ">
+		   AND ID LIKE '%'|| #{searchKeyword} ||'%' ORDER BY NAME DESC
+		</if>
+		<if test="searchCondition == 'NAME' ">
+		   AND NAME LIKE '%'|| #{searchKeyword} ||'%' ORDER BY NAME DESC
+		</if>
+	</select>
+		
+	<!-- 회원상태 변경 -->
+	<update id="memberStatus" parameterType="adminmember">
+		UPDATE MEMBER
+		SET STATUS = #{status}
+		WHERE ID = #{id}
+	</update>
+	
+	<delete id="deleteMemberList" parameterType="String">
+		DELETE FROM MEMBER
+		 WHERE ID = #{id}
+	</delete>
+	
+    <!-- 글 상세보기  -->
+	<select id="getBoard" parameterType="adminnotice" resultType="adminnotice">
+		SELECT * FROM NOTICE WHERE NO = #{no}
+	</select>
+	
+ 	<!-- 공지사항 조회수 증가 -->
+	<update id="noticeHitUpdate" parameterType="int">
+		UPDATE NOTICE SET HIT = HIT+1 WHERE NO = #{no}
+	</update>
+	
+	
+	<!--공지사항 총 게시글 갯수 출력 -->
+	<select id="countBoard" parameterType="pagingVO" resultType="int">
+		SELECT COUNT(*) FROM NOTICE
+		WHERE 1=1
+	      <if test="searchCondition == 'TITLE' ">
+	         AND TITLE LIKE '%'|| #{searchKeyword} ||'%'
+	      </if>
+	      <if test="searchCondition == 'CONTENT' ">
+	         AND CONTENT LIKE '%'|| #{searchKeyword} ||'%'
+	      </if>
+	</select>
+		
+	<!-- 페이징 처리 후 공지사항  -->
+	<select id="selectBoard" parameterType="pagingVO" resultType="adminnotice">
+		SELECT * FROM 
+		    (SELECT ROWNUM RN, A.* FROM 
+		        (SELECT * FROM 
+		            NOTICE
+        WHERE 1=1
+	      <if test="searchCondition == 'TITLE' ">
+	         AND TITLE LIKE '%'|| #{searchKeyword} ||'%'
+	      </if>
+	      <if test="searchCondition == 'CONTENT' ">
+	         AND CONTENT LIKE '%'|| #{searchKeyword} ||'%'
+	      </if> 
+	         ORDER BY NO DESC
+				) A
+		    )
+		WHERE RN BETWEEN #{start} AND #{end}
+	</select>
+	
+	<!-- 공지사항 insert -->
+	<insert id="insertNotice" parameterType="adminnotice">
+	    INSERT INTO NOTICE (NO, ID, TITLE, CONTENT) 
+	    VALUES((SELECT NVL(MAX(NO),0)+1 FROM NOTICE), 
+	        #{id}, #{title}, #{content})
+	</insert>
+	
+	<!-- 공지사항 delete -->
+	<delete id="deleteNotice" parameterType="adminnotice">
+	    DELETE NOTICE
+	    WHERE NO = #{no}
+	</delete>
+	
+	<!-- 공지사항 update -->
+	<update id="updateNotice" parameterType="adminnotice">
+	    UPDATE NOTICE
+	    SET TITLE = #{title}, 
+	        CONTENT = #{content}
+	    WHERE NO = #{no}
+	</update>
+	
+	<!-- 1:1문의 상세보기 -->
+	<select id="qnaGetBoard" parameterType="adminqna" resultType="adminqna">
+		SELECT * FROM QNA WHERE NO = #{no}
+	</select>	
+	
+ 	<!-- qna getboard 삭제 -->
+    <delete id="qnaDeleteGetboard" parameterType="int">
+    DELETE FROM QNA WHERE NO = #{no}
+    </delete>
+	
+	<!-- qna 댓글 작성 -->
+    <insert id = "qnaInsertComment" parameterType="qnacomment">
+    INSERT INTO QNA_COMMENT (NO, Q_NO, CONTENT, ID) VALUES
+    ((SELECT NVL(MAX(NO),0)+1 FROM QNA_COMMENT), 
+    #{q_no}, #{content}, #{id})
+    </insert>
+    
+    <!-- qna 댓글 목록-->
+    <select id = "qnaCommentlist" resultType = "qnacomment">
+    SELECT *
+    FROM QNA_COMMENT C
+    WHERE C.Q_NO = #{q_no}
+    ORDER BY NO DESC
+    </select>
+    
+    <!-- qna 나의 댓글 -->
+	<select id="qnaselectOneComment" resultType="qnacomment">
+	SELECT *
+	 FROM QNA_COMMENT
+	 WHERE NO = #{no}
+	</select>
+    
+    <!-- qna 댓글 수정--> 
+    <update id = "qnaUpdateComment">
+    UPDATE QNA_COMMENT SET CONTENT = #{content} WHERE NO = #{no}
+    </update>
+ 
+ 	<!-- qna 댓글 삭제 -->
+    <delete id="qnaDeleteComment" parameterType="qnacomment">
+    DELETE FROM QNA_COMMENT WHERE NO = #{no}
+    </delete>
+    
+	<!-- 페이징 처리 후 관리자 커뮤니티  -->
+	<select id="adminCommunityList" parameterType="pagingVO" resultType="community">
+		SELECT * FROM 
+			(SELECT ROWNUM RN, A.* FROM 
+				(SELECT * FROM 
+					COMMUNITY 
+					WHERE CATEGORY = #{category}
+	      <if test="searchCondition == 'TITLE' ">
+	         AND TITLE LIKE '%'|| #{searchKeyword} ||'%'
+	      </if>
+	      <if test="searchCondition == 'CONTENT' ">
+	         AND CONTENT LIKE '%'|| #{searchKeyword} ||'%'
+	      </if> 
+	         ORDER BY NO DESC
+				) A
+			)
+		WHERE RN BETWEEN #{start} AND #{end}
+	</select>
+	
+	<!--  관리자 커뮤니티 글 등록 -->
+	<insert id="insertCommunity" parameterType="community">
+		<![CDATA[
+		INSERT INTO COMMUNITY (NO, TITLE, ID, CONTENT, CATEGORY, FILE_NAME)
+	 	VALUES ((SELECT NVL(MAX(NO),0)+1 FROM COMMUNITY), 
+					#{title}, #{id}, #{content}, #{category}, #{file_name}) ]]>
+	</insert>
+	
+	<!-- 관리자 커뮤니티 글 삭제 -->
+	<delete id="deleteCommunity" parameterType="community">
+	    DELETE FROM COMMUNITY
+	    WHERE NO = #{no}
+	</delete>
+	
+	<!-- 관리자 커뮤니티 총 게시글 갯수 출력 -->
+	<select id="adminCommunityCount" parameterType="pagingVO" resultType="int">
+		SELECT COUNT(*) FROM COMMUNITY
+		WHERE CATEGORY = #{category}
+	      <if test="searchCondition == 'TITLE' ">
+	         AND TITLE LIKE '%'|| #{searchKeyword} ||'%'
+	      </if>
+	      <if test="searchCondition == 'CONTENT' ">
+	         AND CONTENT LIKE '%'|| #{searchKeyword} ||'%'
+	      </if> 
+	</select>
+	
+    <!-- 관리자 커뮤니티 글 상세보기  -->
+	<select id="getCommunityBoard" parameterType="community" resultType="community">
+		SELECT * FROM COMMUNITY WHERE CATEGORY = #{category} AND NO = #{no}
+	</select>
+	
+ 	<!-- 관리자 커뮤니티 조회수 증가 -->
+	<update id="communityHitUpdate" parameterType="int">
+		UPDATE COMMUNITY SET HIT = HIT+1 WHERE NO = #{no}
+	</update>
+	
+	<!-- 주문내역 리스트  -->
+    <select id="adminOrderList" resultType="purchase">
+        SELECT * FROM PURCHASE_LIST
+        WHERE STATUS = #{status}
+        ORDER BY NO DESC
+    </select>
+    
+    <!-- 주문내역 상태 -->
+    <update id="orderStatus" parameterType="purchase">
+        UPDATE PURCHASE_LIST
+        SET STATUS = #{status}
+        WHERE NO = #{no}
+    </update>
+ 
+	<!-- 제휴문의 리스트  -->
+    <select id="contactList" resultType="admicontact">
+        SELECT * FROM CONTACT
+        ORDER BY NO DESC
+    </select>   
+    
+	<!-- 1:1문의 상세보기 -->
+	<select id="contactGetBoard" parameterType="admicontact" resultType="admicontact">
+		SELECT * FROM CONTACT WHERE NO = #{no}
+	</select>
+	
+	<!-- 지역별 매출 통계 관련 -->
+	<select id="localPrice" parameterType="String" resultType="int">
+		SELECT NVL(SUM(TOTAL_PRICE), 0)
+		 FROM PURCHASE_LIST P, COUPON C
+		 WHERE P.COUPON_KEY = C.COUPON_KEY
+		   AND C.LOCAL_CATEGORY = #{localCategory}
+		   AND P.STATUS = '결제완료'
+	</select>
+	
+	<!-- 카테고리별 매출 통계 관련 -->
+	<select id="categoryPrice" parameterType="String" resultType="int">
+		SELECT NVL(SUM(TOTAL_PRICE), 0)
+		 FROM PURCHASE_LIST P, COUPON C
+		 WHERE P.COUPON_KEY = C.COUPON_KEY
+		   AND C.COUPON_CATEGORY = #{categoryPrice}
+		   AND P.STATUS = '결제완료'
+	</select>
+	
+	<!-- 1대 1문의 나의 답변 넣기 -->
+   <select id="qnaRe" parameterType="String" resultType="qnacomment">
+	   SELECT * FROM QNA_COMMENT WHERE Q_NO =
+	   (SELECT NO FROM QNA WHERE ID =
+	   #{id} AND STATUS = '답변')
+   </select>
+   
+</mapper>
+
+
+
+
+
+
+
+

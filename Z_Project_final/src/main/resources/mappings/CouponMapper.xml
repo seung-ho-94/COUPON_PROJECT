@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="coupon">
+	
+	<!-- 상품 카테고리 가져오기 -->
+	<select id="selectcategory" parameterType="coupon" resultType="coupon">
+		SELECT *
+   		FROM COUPON
+        WHERE COUPON_CATEGORY = #{coupon_category} AND STATUS = 1
+        ORDER BY FIRST_DATE DESC
+	</select>
+	
+	<!-- 상품페이지 추천상품 3개 -->
+	<select id="best2" parameterType="coupon" resultType="coupon">
+	<![CDATA[
+		SELECT * FROM
+		(SELECT * FROM COUPON WHERE STATUS = 1 AND COUPON_CATEGORY = #{coupon_category} ORDER BY LIKE_COUNT DESC)
+		WHERE ROWNUM <= 3
+	]]>
+	</select>
+	
+	<!-- 메인 페이지 추천상품 3개 -->
+	<select id="mainbest" parameterType="coupon" resultType="coupon">
+	<![CDATA[
+		SELECT * FROM
+		(SELECT * FROM COUPON WHERE STATUS = 1 ORDER BY LIKE_COUNT DESC)
+		WHERE ROWNUM <= 3
+	]]>
+	</select>
+	
+	<!-- 지역 카테고리 가져오기 -->
+	<select id="selectLocal" parameterType="String" resultType="coupon">
+		SELECT *
+   		FROM COUPON
+        WHERE LOCAL_CATEGORY = #{local_category} AND STATUS = 1
+        ORDER BY FIRST_DATE DESC
+	</select>
+	
+	<!-- 지역페이지 추천상품 3개 -->
+	<select id="best" parameterType="coupon" resultType="coupon">
+	<![CDATA[
+		SELECT * FROM
+		(SELECT * FROM COUPON WHERE STATUS = 1 AND LOCAL_CATEGORY = #{local_category} ORDER BY LIKE_COUNT DESC)
+		WHERE ROWNUM <= 3
+	]]>
+	</select>
+
+	<!-- 상품 상세 페이지 이동 -->
+	<select id="detailCoupon" resultType="coupon" parameterType="coupon">
+		SELECT * FROM COUPON WHERE COUPON_KEY = #{coupon_key} AND STATUS = 1
+	</select>
+
+	<!-- 조회수 증가 -->
+	<update id="CouponHitUpdate" parameterType="int">
+		UPDATE COUPON SET HIT = HIT+1 WHERE COUPON_KEY = #{coupon_key} AND STATUS = 1
+	</update>
+	
+	<!-- 지역 베너 사진 찾기용 조회 -->
+	<select id="findimg" parameterType="String" resultType="String">
+		SELECT DISTINCT ATTACH_FILE2 FROM COUPON WHERE LOCAL_CATEGORY = #{local_category} AND STATUS = 1 AND ATTACH_FILE2 IS NOT NULL
+	</select>
+	
+	<!-- ======================================================================= -->
+	<!-- 정렬1 : 카테고리페이지에서 지역 추가 검색하기 + 지역페이지에서 카테고리 추가 검색하기  -->
+	<select id="selectcategorylocal" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON
+        WHERE COUPON_CATEGORY = #{coupon_category} AND LOCAL_CATEGORY = #{local_category} AND STATUS = 1
+	</select>
+	
+	<!-- 정렬2 : 조회순~신상품순  -->
+	<!-- ===============================지역 카테고리========================================= -->
+	<!-- 조회순 -->
+	<select id="click" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON
+        WHERE STATUS = 1 AND LOCAL_CATEGORY = #{local_category}
+        ORDER BY HIT DESC
+	</select>
+	
+	<!-- 인기순 -->
+	<select id="like" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON 
+		WHERE STATUS = 1 AND LOCAL_CATEGORY = #{local_category}
+		ORDER BY LIKE_COUNT DESC
+	</select>
+	
+	<!-- 낮은가격순 -->
+	<select id="lowprice" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON 
+		WHERE STATUS = 1 AND LOCAL_CATEGORY = #{local_category}
+		ORDER BY TO_NUMBER(PRICE)
+	</select>
+	
+	<!-- 높은가격순 -->
+	<select id="hightprice" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON 
+		WHERE STATUS = 1 AND LOCAL_CATEGORY = #{local_category}
+		ORDER BY TO_NUMBER(PRICE) DESC
+	</select>
+	
+	<!-- 신상품순 -->
+	<select id="newcoupon" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON 
+		WHERE STATUS = 1 AND LOCAL_CATEGORY = #{local_category}
+		ORDER BY FIRST_DATE DESC
+	</select>
+	
+	<!-- ===============================상품 카테고리========================================= -->
+	
+	<!-- 조회순 -->
+	<select id="click2" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON
+        WHERE STATUS = 1 AND COUPON_CATEGORY = #{coupon_category}
+        ORDER BY HIT DESC
+	</select>
+	
+	<!-- 인기순 -->
+	<select id="like2" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON 
+		WHERE STATUS = 1 AND COUPON_CATEGORY = #{coupon_category}
+		ORDER BY LIKE_COUNT DESC
+	</select>
+	
+	<!-- 낮은가격순 -->
+	<select id="lowprice2" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON 
+		WHERE STATUS = 1 AND COUPON_CATEGORY = #{coupon_category}
+		ORDER BY TO_NUMBER(PRICE)
+	</select>
+	
+	<!-- 높은가격순 -->
+	<select id="hightprice2" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON 
+		WHERE STATUS = 1 AND COUPON_CATEGORY = #{coupon_category}
+		ORDER BY TO_NUMBER(PRICE) DESC
+	</select>
+	
+	<!-- 신상품순 -->
+	<select id="newcoupon2" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON 
+		WHERE STATUS = 1 AND COUPON_CATEGORY = #{coupon_category}
+		ORDER BY FIRST_DATE DESC
+	</select>
+	
+	<!-- 정렬3 : 날짜 정렬  -->
+	<!-- ===============================상품 카테고리============================= -->
+	<select id="datesort" parameterType="coupon" resultType="coupon">
+	<![CDATA[
+		SELECT * FROM COUPON 
+		WHERE TO_DATE(#{first_date}, 'YY/MM/DD') >= FIRST_DATE
+        AND TO_DATE(#{first_date}, 'YY/MM/DD') <= LAST_DATE
+        AND STATUS = 1
+        AND COUPON_CATEGORY = #{coupon_category}
+	]]>
+	</select>
+	
+	<!-- ===============================지역 카테고리============================= -->
+	<!-- 날짜 정렬 -->
+	<select id="datesort2" parameterType="coupon" resultType="coupon">
+	<![CDATA[
+		SELECT * FROM COUPON 
+		WHERE TO_DATE(#{first_date}, 'YY/MM/DD') >= FIRST_DATE
+        AND TO_DATE(#{first_date}, 'YY/MM/DD') <= LAST_DATE
+        AND STATUS = 1
+        AND LOCAL_CATEGORY = #{local_category}
+	]]>
+	</select>
+	
+	<!-- ===============================전체 쿠폰 리스트============================= -->
+	<!-- 날짜 정렬 -->
+	<select id="datesort3" parameterType="coupon" resultType="coupon">
+	<![CDATA[
+		SELECT * FROM COUPON 
+		WHERE TO_DATE(#{first_date}, 'YY/MM/DD') >= FIRST_DATE
+        AND TO_DATE(#{first_date}, 'YY/MM/DD') <= LAST_DATE
+        AND STATUS = 1
+	]]>
+	</select>
+	
+	<!-- 전체 상품 리스트 -->
+	<!-- =============================== 상품 전체 리스트 ============================== -->
+	
+	<select id="allcoupon" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON
+	 	WHERE STATUS = 1
+	 ORDER BY FIRST_DATE DESC
+	</select>
+	
+	<!-- =============================== 전체 상품 리스트 정렬 ========================================= -->
+	
+	<!-- 조회순 -->
+	<select id="click3" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON
+        WHERE STATUS = 1 ORDER BY HIT DESC
+	</select>
+	
+	<!-- 인기순 -->
+	<select id="like3" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON
+        WHERE STATUS = 1 ORDER BY LIKE_COUNT DESC
+	</select>
+	
+	<!-- 낮은가격순 -->
+	<select id="lowprice3" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON
+        WHERE STATUS = 1 ORDER BY TO_NUMBER(PRICE)
+	</select>
+	
+	<!-- 높은가격순 -->
+	<select id="hightprice3" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON
+        WHERE STATUS = 1 ORDER BY TO_NUMBER(PRICE) DESC
+	</select>
+	
+	<!-- 신상품순 -->
+	<select id="newcoupon3" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON
+        WHERE STATUS = 1 ORDER BY FIRST_DATE DESC
+	</select>
+	
+	<!-- 지도를 위 해 정보 가져오기 -->
+	<select id="mapInfo" resultType="coupon">
+		SELECT COUPON_KEY ,NAME, ADDRESS, ATTACH_FILE1 FROM COUPON
+	</select>
+
+</mapper>
+
+
+
+
+
+
+
+

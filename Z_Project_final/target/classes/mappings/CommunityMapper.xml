@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="communityDAO">
+	
+	<!-- ===== 자유 게시판 ===== // ==> ServiceImpl로 이동
+	resultType : 쿼리 실행 후, 결과가 있을 경우 사용 ==> VO 파일 경로 길면 mybatis-config에 등록 가능
+	parameterType : 데이터를 넣을 경우 사용
+	-->
+	
+	<!-- 검색 -->
+	<sql id="criteria">
+		<trim prefixOverrides="OR" suffix=") AND " prefix="(">
+			<foreach collection="typeArr" item="type">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'T'.toString()">title like '%'||#{keyword}||'%' </when>
+						<when test="type == 'C'.toString()">content like '%'||#{keyword}||'%' </when>
+						<when test="type == 'W'.toString()">id like '%'||#{keyword}||'%' </when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+	</sql>
+	
+	<!-- 게시글 조회 + 페이징 처리 -->
+	<!-- <![CDATA ]]> : 조건문 및 ' '에 사용 / if not => 오류 발생!! -->
+	<select id="selectFreeBoardList" resultType="community">
+		<![CDATA[
+		SELECT * FROM (SELECT ROWNUM RN, board.* 
+		FROM COMMUNITY BOARD WHERE ]]> <include refid="criteria"></include>
+		<![CDATA[ ROWNUM <= #{pageNum} * #{amount} ORDER BY NO DESC)
+		WHERE RN > (#{pageNum}-1) * #{amount} AND CATEGORY='FREE' ORDER BY NO DESC
+		]]>
+	</select>
+	
+	<!-- 총 게시글 갯수 출력(페이징 + 검색) -->
+	<select id="countFreeBoard" resultType="int">
+		 SELECT COUNT(*) FROM COMMUNITY where
+		<include refid="criteria"></include>
+		no>0 AND CATEGORY='FREE'
+	</select>
+
+	<!--  자유 게시판 글 등록 -->
+	<insert id="insertFreeBoard" parameterType="community">
+		<![CDATA[
+		INSERT INTO COMMUNITY (NO, TITLE, ID, CONTENT, CATEGORY, FILE_NAME)
+	 	VALUES ((SELECT NVL(MAX(NO),0)+1 FROM COMMUNITY), 
+					#{title}, #{id}, #{content}, 'FREE', #{file_name}) ]]>
+	</insert>
+	
+	<!-- 글 상세 보기 -->
+	<select id="selectOneFreeBoard" resultType="community">
+		SELECT * FROM COMMUNITY WHERE NO = #{no}
+	</select>
+	
+	<!-- 조회수 증가 -->
+	<update id="freeHitUp">
+		UPDATE COMMUNITY
+		SET HIT = HIT + 1
+		WHERE NO = #{no}
+	</update>
+	
+	<!-- 글 삭제 -->
+	<delete id="deleteFreeBoard" parameterType="community">
+		<![CDATA[ DELETE FROM COMMUNITY WHERE NO = #{no} ]]>
+	</delete>
+	
+	<!-- 글 수정 -->
+	<update id="updateFreeBoard" parameterType="community">
+		UPDATE COMMUNITY SET TITLE = #{title}, CONTENT = #{content}<!-- , FILE_NAME = {file_name} -->
+		WHERE NO = #{no}
+	</update>
+	
+	<!-- ==================== -->
+	<!-- 여행 정보 게시판 -->
+	
+	<!-- 게시글 조회 + 페이징 처리 -->
+	<!-- <![CDATA ]]> : 조건문 및 ' '에 사용 / if not => 오류 발생!! -->
+	<select id="selectTripInfoBoardList" resultType="community">
+		<![CDATA[
+		SELECT * FROM (SELECT ROWNUM RN, board.* 
+		FROM COMMUNITY BOARD WHERE ]]> <include refid="criteria"></include>
+		<![CDATA[ ROWNUM <= #{pageNum} * #{amount} ORDER BY NO DESC)
+		WHERE RN > (#{pageNum}-1) * #{amount} AND CATEGORY='TRIP' ORDER BY NO DESC
+		]]>
+	</select>
+	
+	<!-- 총 게시글 갯수 출력(페이징 + 검색) -->
+	<select id="countTripInfoBoard" resultType="int">
+		 SELECT COUNT(*) FROM COMMUNITY where
+		<include refid="criteria"></include>
+		no>0 AND CATEGORY='TRIP'
+	</select>
+
+	<!--  자유 게시판 글 등록 -->
+	<insert id="insertTripInfoBoard" parameterType="community">
+		<![CDATA[
+		INSERT INTO COMMUNITY (NO, TITLE, ID, CONTENT, CATEGORY, FILE_NAME)
+	 	VALUES ((SELECT NVL(MAX(NO),0)+1 FROM COMMUNITY), 
+					#{title}, #{id}, #{content}, 'TRIP', #{file_name}) ]]>
+	</insert>
+	
+	<!-- 글 상세 보기 -->
+	<select id="selectOneTripInfoBoard" resultType="community">
+		SELECT * FROM COMMUNITY WHERE NO = #{no}
+	</select>
+	
+	<!-- 글 삭제 -->
+	<delete id="deleteTripInfoBoard" parameterType="community">
+		<![CDATA[ DELETE FROM COMMUNITY WHERE NO = #{no} ]]>
+	</delete>
+	
+	<!-- 글 수정 -->
+	<update id="updateTripInfoBoard" parameterType="community">
+		UPDATE COMMUNITY SET TITLE = #{title}, CONTENT = #{content}<!-- , FILE_NAME = {file_name} -->
+		WHERE NO = #{no}
+	</update>
+
+	<!-- 조회수 증가 -->
+	<update id="tripHitUp">
+		UPDATE COMMUNITY
+		SET HIT = HIT + 1
+		WHERE NO = #{no}
+	</update>
+</mapper>
+
+
+
+
+
+
+

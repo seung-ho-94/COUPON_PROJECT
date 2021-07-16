@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="notice">
+	<!-- 글 상세보기  -->
+	<select id="getBoard" parameterType="notice" resultType="notice">
+		SELECT * FROM NOTICE WHERE NO = #{no}
+	</select>
+	
+	<!-- 공지사항 조회수 증가 -->
+	<update id="noticeHitUpdate" parameterType="int">
+		UPDATE NOTICE SET HIT = HIT+1 WHERE NO = #{no}
+	</update>
+	
+	
+	<!--공지사항 총 게시글 갯수 출력 -->
+	<select id="countBoard" resultType="int">
+		SELECT COUNT(*) FROM NOTICE
+	</select>
+		
+	<!-- 페이징 처리 후 공지사항  -->
+	<select id="selectBoard" resultType="notice">
+		SELECT * 
+			FROM (
+				SELECT ROWNUM RN, A.* 
+					FROM (
+							SELECT * 
+							FROM NOTICE 
+							ORDER BY NO DESC 
+							) A
+					)
+		WHERE RN BETWEEN #{start} AND #{end}
+	</select>
+	
+</mapper>
+
+
+
+

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cart">
+	
+	<!-- 장바구니에 넣기(찜하기) -->
+	<insert id="mycartinsert" parameterType="cart">
+		INSERT INTO CART (NO, ID ,COUPON_KEY ,NAME ,PRICE ,QUANTITY ,TOTAL_PRICE ,FIRST_DATE ,LAST_DATE, SELECT_DATE)
+		VALUES((SELECT NVL(MAX(NO),0)+1 FROM CART), #{id}, #{coupon_key}, #{name}, #{price}, #{quantity},
+				 #{total_price}, #{first_date}, #{last_date}, #{select_date})
+	</insert>
+	
+	<!-- 찜하면 LIKE_COUNT 증가 -->
+	<update id="likeCountUpdate" parameterType="int">
+		UPDATE COUPON SET LIKE_COUNT = LIKE_COUNT+1 WHERE COUPON_KEY = #{coupon_key} AND STATUS = 1
+	</update>
+	
+	<!-- 결제정보를위해 회원정보 불러오기 -->
+	<select id="userInfo" parameterType="String" resultType="com.spring.biz.member.service.MemberVO">
+		SELECT * FROM MEMBER WHERE ID = #{member_id}
+	</select>
+	
+	<!-- 장바구니 목록 -->
+	<select id="selectCartList" parameterType="String" resultType="cart">
+		SELECT * FROM CART
+		WHERE ID = #{id}
+	</select>
+	
+	<!-- 구매내역 목록 -->
+	<select id="selectOrderList" parameterType="String" resultType="purchase">
+		SELECT P.*, C.NAME
+		  FROM PURCHASE_LIST P, COUPON C
+		 WHERE P.COUPON_KEY = C.COUPON_KEY
+		   AND P.ID = #{id}
+		   AND P.STATUS = '결제완료'
+		 ORDER BY NO DESC
+	</select>
+	
+	<!-- 구매내역 주문취소 = STATUS UPDATE -->
+   	<update id="updateOrderList" parameterType="purchase">
+		UPDATE PURCHASE_LIST
+		   SET STATUS = '주문취소'
+		 WHERE ID = #{id}
+		   AND NO = #{no}
+	</update>
+	
+	<!-- 취소내역 목록 -->
+	<select id="selectCancelList" parameterType="String" resultType="purchase">
+ 		SELECT P.*, C.NAME
+ 		  FROM PURCHASE_LIST P, COUPON C
+		 WHERE P.COUPON_KEY = C.COUPON_KEY
+		   AND P.ID = #{id}
+           AND (P.STATUS = '취소완료' OR P.STATUS = '주문취소')
+         ORDER BY NO DESC
+	</select>
+	
+	<!-- 장바구니 삭제 -->
+	<delete id="deleteCart" parameterType="int">
+		DELETE FROM CART 
+		WHERE NO = #{no}
+	</delete>
+	
+	<!-- 장바구니에서 체크박스 선택 된 목록들 -->
+	<select id="checkedCart">
+		SELECT * FROM 
+		WHERE NO = #{no}
+		AND ID = #{id}
+	</select>
+	
+	<!-- 결제하기 (결제한 데이터 insert) -->
+   <insert id="insertPurchase" parameterType="purchase">
+       INSERT INTO PURCHASE_LIST 
+           (NO, ID, TOTAL_PRICE, QUANTITY, PAYMENT_OPTION, COUPON_KEY, EMAIL)
+        VALUES ((SELECT NVL(MAX(NO),0)+1 FROM PURCHASE_LIST), 
+                #{id}, #{total_price}, #{quantity}, #{payment_option}, #{coupon_key}, #{email})
+   </insert>
+   
+   <update id="updateUpload_count" parameterType="purchase" >
+	   	UPDATE COUPON
+	    SET UPLOAD_COUNT = UPLOAD_COUNT -1 
+	    WHERE COUPON_KEY = #{coupon_key}
+   </update>
+   
+</mapper>
+
+
+
+

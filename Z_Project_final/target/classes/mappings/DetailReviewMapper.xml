@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="detailreview">
+	
+	<!-- 쿠폰 상세페이지 리뷰(최신순) select one -->
+	<select id="detailreview" parameterType="detailreview" resultType="detailreview">
+		SELECT *
+  		FROM REVIEW
+ 		WHERE coupon_key = #{coupon_key} ORDER BY SYSDATE DESC
+	</select>
+
+</mapper>

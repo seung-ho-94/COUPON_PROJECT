@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL"/>
+	</settings>
+   	<typeAliases>
+		<typeAlias type="com.spring.biz.customerservice.vo.NoticeVO" alias="notice"/>
+		<typeAlias type="com.spring.biz.customerservice.vo.QnaVO" alias="qna"/>
+		<typeAlias type="com.spring.biz.customerservice.vo.ContactVO" alias="contact"/>
+		<typeAlias type="com.spring.biz.customerservice.vo.FaqVO" alias="faq"/>
+		<typeAlias type="com.spring.biz.member.service.MemberVO" alias="member"/>
+		<typeAlias type="com.spring.biz.community.service.CommunityVO" alias="community"/>	
+		<typeAlias type="com.spring.biz.community.service.CommentVO" alias="comment"/>
+		<typeAlias type="com.spring.biz.coupon.service.UserCouponVO" alias="coupon"/>
+		<typeAlias type="com.spring.biz.coupon.service.DetatilReviewVO" alias="detailreview"/>
+		<typeAlias type="com.spring.biz.cart.service.CartVO" alias="cart"/>
+		<!-- ================== 관리자 ==================== -->
+		<!-- 관리자 VO 별칭 -->
+		<typeAlias alias="adminmember" type="com.spring.biz.admin.service.AdminMemberVO"/>				
+		<!-- 관리자 VO 별칭 -->
+		<typeAlias alias="admin" type="com.spring.biz.admin.service.AdminVO"/>		
+		<!-- 상품 등록(쿠폰) VO 별칭 -->
+		<typeAlias alias="admincoupon" type="com.spring.biz.admin.service.CouponVO"/>		
+		<!-- 자주하는 질문(FAQ) VO 별칭 -->
+		<typeAlias alias="adminfaq" type="com.spring.biz.admin.service.FAQVO"/>		
+		<!-- 1:1문의(QNA) VO 별칭 -->
+		<typeAlias alias="adminqna" type="com.spring.biz.admin.service.QNAVO"/>		
+		<!-- 공지사항 VO 별칭 -->
+		<typeAlias alias="adminnotice" type="com.spring.biz.admin.service.AdminNoticeVO"/>		
+		<!-- 페이징 VO 별칭 -->
+		<typeAlias alias="pagingVO" type="com.spring.biz.common.PagingVO"/>		
+		<!-- qna 댓글 VO 별칭 -->		
+		<typeAlias type="com.spring.biz.admin.service.QnaCommentVO" alias="qnacomment"/>	
+		<!-- 주문내역 VO 별칭 -->
+		<typeAlias alias="adminorder" type="com.spring.biz.admin.service.AdminOrderVO"/>	
+		<!-- 제휴문의 VO 별칭 -->
+		<typeAlias alias="admicontact" type="com.spring.biz.admin.service.ContactVO"/>
+		<!-- 결제 -->
+		<typeAlias type="com.spring.biz.cart.service.PurchaseVO" alias="purchase"/>
+	</typeAliases> 
+  <mappers>
+    <mapper resource="mappings/NoticeMapper.xml"/>
+    <mapper resource="mappings/FaqMapper.xml"/>
+    <mapper resource="mappings/QnaMapper.xml"/>
+    <mapper resource="mappings/member-mapper.xml"/>
+    <mapper resource="mappings/CommunityMapper.xml"/>
+    <mapper resource="mappings/CommentMapper.xml"/>
+    <mapper resource="mappings/CouponMapper.xml"/>
+    <mapper resource="mappings/ContactMapper.xml"/>
+    <mapper resource="mappings/DetailReviewMapper.xml"/>
+    <mapper resource="mappings/SearchCouponMapper.xml"/>
+    <mapper resource="mappings/CartMapper.xml"/>
+	<!-- 관리자 Mapper.xml -->
+	<mapper resource="mappings/AdminMapper.xml"/>    
+  </mappers>
+</configuration>
+
+
+
+
+

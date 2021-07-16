@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="member">
+
+	<!-- 회원가입  -->
+	<insert id="sign_up" parameterType="member">
+		INSERT INTO MEMBER (ID, PASSWORD, NAME, EMAIL, PHONE, BIRTH)
+			 VALUES (#{id}, #{password}, #{name}, #{email}, #{phone}, #{birth})
+	</insert>
+	
+	<!-- 아이디 중복 검사 -->
+	<select id="id_check" parameterType= "string" resultType= "int">
+		<!-- SELECT ID FROM MEMBER WHERE ID = #{id} -->
+		SELECT COUNT(*) FROM MEMBER WHERE ID = #{id}
+	</select>
+	
+	<!-- 로그인 아이디, 비밀번호 확인   -->
+	<select id="checkIdPassword" parameterType="member" resultType="string">
+		SELECT ID, PASSWORD
+		  FROM MEMBER
+		 WHERE ID = #{id}
+		   AND PASSWORD = #{password}
+	</select>
+	
+	<!-- 회원탈퇴 아이디 유효성 검사 -->
+	<select id="Withdrawal_id" parameterType= "member" resultType= "string">
+		SELECT STATUS
+  		  FROM MEMBER WHERE ID = #{id} 
+	</select>
+	
+	<!-- 비밀번호 찾기, 변경 -->
+	<update id="updatepassword" parameterType="member">
+		UPDATE MEMBER SET PASSWORD = #{password} WHERE ID = #{id}
+	</update>
+	
+	<!-- 로그인 아이디, 이메일 확인(비밀번호 찾기)   -->
+	<select id="checkIdEmail" parameterType="member" resultType="string">
+		SELECT ID
+		  FROM MEMBER
+		 WHERE ID = #{id}
+		   AND EMAIL = #{email}
+	</select>
+	
+	<!-- 로그인 유저 정보 상세 조회 -->
+	<select id="viewmember" resultType="member" parameterType="String">
+	SELECT * FROM MEMBER
+     WHERE ID = #{loginId}
+	</select> 
+	
+	<!-- 회원 정보 수정 -->
+	<update id="updateMyPage" parameterType="member">
+		UPDATE MEMBER SET EMAIL = #{email}, PHONE = #{phone}, NAME = #{name}
+		WHERE ID = #{id}
+	</update>
+	
+	<!-- 회원 비밀번호 변경 -->
+   <update id="updatePassword" parameterType="member">
+      UPDATE MEMBER SET PASSWORD = #{password} WHERE ID = #{id}
+   </update>
+   
+   <!-- 회원 탈퇴 -->
+   <update id="deleteMember" parameterType="String">
+      UPDATE MEMBER SET STATUS = 0 WHERE PASSWORD = #{password} 
+   </update>
+	
+</mapper>
+
+
+
+
+
+
+
+
+

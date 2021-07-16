@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="coupon">
+	
+	<!-- 전체 쿠폰(제목+내용) 최신순 : 전체 검색 -->
+	<select id="getsearchcoupon" parameterType="coupon" resultType="coupon">
+		SELECT * FROM COUPON
+		WHERE NAME LIKE '%'|| #{name} ||'%' OR CONTENT LIKE '%'|| #{content} ||'%'
+		AND STATUS = 1
+		ORDER BY FIRST_DATE DESC
+	</select>
+	
+	<!-- 지역 쿠폰(제목+내용) 최신순 : 지역별 검색 -->
+	<select id="getsearchcoupon_Local" parameterType="coupon" resultType="coupon">
+	SELECT * FROM COUPON
+		WHERE (NAME LIKE '%'|| #{name} ||'%' OR CONTENT LIKE '%'|| #{content} ||'%') AND LOCAL_CATEGORY = #{local_category}
+		AND STATUS = 1
+		ORDER BY FIRST_DATE DESC
+	</select>
+	
+	<!-- 카테고리 쿠폰(제목+내용) 최신순 : 카테고리별 검색 -->
+	<select id="getsearchcoupon_Category" parameterType="coupon" resultType="coupon">
+	SELECT * FROM COUPON
+		WHERE (NAME LIKE '%'|| #{name} ||'%' OR CONTENT LIKE '%'|| #{content} ||'%') AND COUPON_CATEGORY = #{coupon_category}
+		AND STATUS = 1
+		ORDER BY FIRST_DATE DESC
+	</select>
+	
+	<insert id="insertKeyword" parameterType="String">
+		INSERT INTO SEARCH_KEYWORD (NO, KEYWORD, SEARCH_DATE)
+		VALUES ((SELECT NVL(MAX(NO),0)+1 FROM SEARCH_KEYWORD), #{searchKeyword}, SYSDATE)
+	</insert>
+	
+	<select id="selectKeyword" resultType="java.util.HashMap">
+	<![CDATA[
+		SELECT * FROM (SELECT KEYWORD, COUNT(KEYWORD) C FROM SEARCH_KEYWORD
+		GROUP BY KEYWORD
+		ORDER BY COUNT(KEYWORD) DESC)
+		WHERE ROWNUM <= 5
+	]]>	
+	</select>
+</mapper>
+
+

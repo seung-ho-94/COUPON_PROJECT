@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="contact">
+
+	<!-- 제휴문의 insert-->
+	<insert id="contactinsert" parameterType="contact">
+	INSERT INTO CONTACT(NO,TITLE,CONTENT,EMAIL,NAME,REGDATE)
+		 VALUES ((SELECT NVL(MAX(NO),0)+1 FROM CONTACT), #{title}, #{content}, #{email}, #{name}, SYSDATE)
+	</insert>
+</mapper>
+
+
+
+
